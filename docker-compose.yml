@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  rest-api:
+    build: rest-api
+    mem_limit: 2048m
+    ports:
+      - "9000:9000"
+    environment:
+      DB_URL: jdbc:mysql://api_seguridad:3306/app_seguridad?createDatabaseIfNotExist=true&serverTimezone=UTC
+      DB_USER_NAME: root
+      DB_PASSWORD: root
+    restart: always
+    depends_on:
+      api_seguridad:
+          condition: service_healthy
+  api_seguridad:
+    image: mysql:8.0.33
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: app_seguridad
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
